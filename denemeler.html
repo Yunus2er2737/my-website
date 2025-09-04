@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fıstık Kavlatma ve Zeytin Tesisi Otomasyonu</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+    .page {
+    display: none;
+    animation: fadeIn 0.3s ease-in;
+    min-height: calc(var(--vh, 1vh) * 100);
+}
+        .page.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 40;
+        }
+        .nav-item {
+            transition: all 0.3s ease;
+            border-radius: 0.5rem;
+        }
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+        .nav-item.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .stat-card {
+            transition: transform 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .main-content {
+            margin-left: 16rem;
+            width: calc(100% - 16rem);
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 50;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Giriş Sayfası -->
+    <div id="loginPage" class="page active">
+        <div class="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-600 to-purple-700 p-4">
+            <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md">
+                <div class="text-center mb-8">
+                    <div class="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-industry text-white text-3xl"></i>
+                    </div>
+                    <h1 class="text-3xl font-bold text-gray-800">Fıstık & Zeytin Tesisi</h1>
+                    <p class="text-gray-600">Otomasyon Sistemi</p>
+                </div>
+                
+                <form id="loginForm" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Kullanıcı Adı</label>
+                        <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="admin" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Şifre</label>
+                        <input type="password" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="••••••" required>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Giriş Yap
+                    </button>
+                </form>
+                
+                <div class="mt-6 text-center">
+                    <p class="text-sm text-gray-600">Demo için herhangi bir bilgi ile giriş yapabilirsiniz</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+
+    <!-- Ana Layout -->
+<div id="appLayout" style="display:none;">
+        <!-- Sidebar -->
+        <div class="sidebar w-64 text-white p-6">
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold mb-2">Fıstık & Zeytin</h2>
+                <p class="text-blue-200 text-sm">Otomasyon Sistemi</p>
+            </div>
+            
+            <nav class="space-y-2 mb-8">
+                <a href="#dashboard" class="nav-item flex items-center p-3 rounded-lg text-white active" onclick="showPage('dashboardPage')">
+                    <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
+                </a>
+                <a href="#kayit" class="nav-item flex items-center p-3 rounded-lg text-white" onclick="showPage('kayitPage')">
+                    <i class="fas fa-plus-circle mr-3"></i>Yeni Kayıt
+                </a>
+                <a href="#tartim2" class="nav-item flex items-center p-3 rounded-lg text-white" onclick="showPage('tartim2Page')">
+                    <i class="fas fa-weight-scale mr-3"></i>2. Tartım
+                </a>
+                <a href="#islemBitir" class="nav-item flex items-center p-3 rounded-lg text-white" onclick="showPage('islemBitirPage')">
+                    <i class="fas fa-check-circle mr-3"></i>İşlem Bitir
+                </a>
+                <a href="#kavlatmaDevam" class="nav-item flex items-center p-3 rounded-lg text-white" onclick="showPage('kavlatmaDevamPage')">
+                    <i class="fas fa-cogs mr-3"></i>Kavlatma Devam
+                </a>
+                <a href="#zeytinDevam" class="nav-item flex items-center p-3 rounded-lg text-white" onclick="showPage('zeytinDevamPage')">
+                    <i class="fas fa-olive mr-3"></i>Zeytin Devam
+                </a>
+                <a href="#odemeler" class="nav-item flex items-center p-3 rounded-lg text-white" onclick="showPage('odemelerPage')">
+                    <i class="fas fa-credit-card mr-3"></i>Ödemeler
+                </a>
+                <a href="#fiyatlar" class="nav-item flex items-center p-3 rounded-lg text-white" onclick="showPage('fiyatlarPage')">
+                    <i class="fas fa-tag mr-3"></i>Fiyat Yönetimi
+                </a>
+                <a href="#raporlar" class="nav-item flex items-center p-3 rounded-lg text-white" onclick="showPage('raporlarPage')">
+                    <i class="fas fa-chart-bar mr-3"></i>Raporlar
+                </a>
+                <a href="#silme" class="nav-item flex items-center p-3 rounded-lg text-white" onclick="showPage('silmePage')">
+    <i class="fas fa-trash-alt mr-3"></i>Silme Ekranı
+</a>
+            </nav>
+            
+            <div class="absolute bottom-6 left-6">
+                <button onclick="logout()" class="flex items-center text-red-300 hover:text-red-100">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Çıkış Yap
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="bg-white shadow-sm border-b p-4">
+                <div class="flex justify-between items-center">
+                    <h1 id="pageTitle" class="text-2xl font-bold text-gray-800">Dashboard</h1>
+                    <div class="flex space-x-2">
+                        <button onclick="showPage('dashboardPage')" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-home mr-2"></i>Ana Sayfa
+                        </button>
+                        <button onclick="history.back()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400">
+                            <i class="fas fa-arrow-left mr-2"></i>Geri
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Content -->
+            <div class="p-6">
+                <!-- Dashboard Page -->
+                <div id="dashboardPage" class="page active">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="stat-card bg-white p-6 rounded-lg shadow-md text-center">
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-users text-blue-600 text-xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800" id="totalCustomers">0</h3>
+                            <p class="text-gray-600">Toplam Müşteri</p>
+                        </div>
+                        
+                        <div class="stat-card bg-white p-6 rounded-lg shadow-md text-center">
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-weight-scale text-green-600 text-xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800" id="pendingTartim">0</h3>
+                            <p class="text-gray-600">Bekleyen Tartım</p>
+                        </div>
+                        
+                        <div class="stat-card bg-white p-6 rounded-lg shadow-md text-center">
+                            <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-check-circle text-yellow-600 text-xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800" id="completedJobs">0</h3>
+                            <p class="text-gray-600">Tamamlanan İş</p>
+                        </div>
+                        
+                        <div class="stat-card bg-white p-6 rounded-lg shadow-md text-center">
+                            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-credit-card text-red-600 text-xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800" id="pendingPayment">0</h3>
+                            <p class="text-gray-600">Bekleyen Ödeme</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+                        <h2 class="text-xl font-semibold mb-4">Son İşlemler</h2>
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th class="px-6 py-3 text-left">Müşteri</th>
+                                        <th class="px-6 py-3 text-left">İşlem</th>
+                                        <th class="px-6 py-3 text-left">Net Kg</th>
+                                        <th class="px-6 py-3 text-left">Tutar</th>
+                                        <th class="px-6 py-3 text-left">Durum</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentTransactions">
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">Henüz işlem bulunmamaktadır</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Yeni Kayıt Sayfası -->
+                <div id="kayitPage" class="page">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold mb-6">Yeni Müşteri Kaydı</h2>
+                        <form id="kayitForm" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Müşteri Adı Soyadı</label>
+                                    <input type="text" id="adSoyad" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Plaka</label>
+                                    <input type="text" id="plaka" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Geldiği Yer</label>
+                                <input type="text" id="geldigiYer" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">İşlem Türü</label>
+                                <select id="islemTuru" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required onchange="onIslemTuruChange()">
+                                    <option value="">Seçiniz</option>
+                                    <option value="Kavlatma">Kavlatma</option>
+                                    <option value="Taneleme">Taneleme</option>
+                                    <option value="Farfar">Farfar</option>
+                                    <option value="Zeytin">Zeytin</option>
+                                </select>
+                            </div>
+
+                            <!-- Kavlatma ek seçenekleri -->
+                            <div id="kavlatmaExtrasDiv" style="display:none;">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Kavlatma Ek Seçenekleri</label>
+                                <div class="flex items-center space-x-4">
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" id="extraSerim" class="form-checkbox h-4 w-4 text-blue-600">
+                                        <span class="ml-2 text-gray-700">Serim</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="checkbox" id="extraFarfar" class="form-checkbox h-4 w-4 text-blue-600">
+                                        <span class="ml-2 text-gray-700">Farfar</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">1. Tartım (kg)</label>
+                                <input type="number" id="tartim1" step="0.01" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                            
+                            <button type="submit" class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-save mr-2"></i>Kaydı Oluştur
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 2. Tartım Sayfası -->
+                <div id="tartim2Page" class="page">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold mb-6">2. Tartım İşlemi</h2>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Müşteri Ara</label>
+                            <input type="text" id="musteriAra" placeholder="Plaka veya isim ile ara..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" onkeyup="searchCustomers()">
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th class="px-6 py-3 text-left">Müşteri</th>
+                                        <th class="px-6 py-3 text-left">Plaka</th>
+                                        <th class="px-6 py-3 text-left">İşlem</th>
+                                        <th class="px-6 py-3 text-left">1. Tartım</th>
+                                        <th class="px-6 py-3 text-left">İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tartimListesi">
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">1. tartımı tamamlanmış müşteri bulunamadı</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- İşlem Bitir Sayfası -->
+                <div id="islemBitirPage" class="page">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold mb-6">İşlem Bitir</h2>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Müşteri Ara</label>
+                            <input type="text" id="islemMusteriAra" placeholder="Plaka veya isim ile ara..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" onkeyup="searchIslemMusteriler()">
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th class="px-6 py-3 text-left">Müşteri</th>
+                                        <th class="px-6 py-3 text-left">Plaka</th>
+                                        <th class="px-6 py-3 text-left">İşlem</th>
+                                        <th class="px-6 py-3 text-left">Net Kg</th>
+                                        <th class="px-6 py-3 text-left">Tutar</th>
+                                        <th class="px-6 py-3 text-left">İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="islemListesi">
+                                    <tr>
+                                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">İşlem bekleyen müşteri bulunamadı</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kavlatma Devam Sayfası -->
+                <div id="kavlatmaDevamPage" class="page">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold mb-6">Kavlatma Devam İşlemleri</h2>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Müşteri Ara</label>
+                            <input type="text" id="kavlatmaAra" placeholder="Plaka veya isim ile ara..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" onkeyup="searchKavlatmaMusteriler()">
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th class="px-6 py-3 text-left">Müşteri</th>
+                                        <th class="px-6 py-3 text-left">Plaka</th>
+                                        <th class="px-6 py-3 text-left">Net Kg</th>
+                                        <th class="px-6 py-3 text-left">İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="kavlatmaListesi">
+                                    <tr>
+                                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">Kavlatma işlemi bekleyen müşteri bulunamadı</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zeytin Devam Sayfası -->
+                <div id="zeytinDevamPage" class="page">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold mb-6">Zeytin Devam İşlemleri</h2>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Müşteri Ara</label>
+                            <input type="text" id="zeytinAra" placeholder="Plaka veya isim ile ara..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" onkeyup="searchZeytinMusteriler()">
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th class="px-6 py-3 text-left">Müşteri</th>
+                                        <th class="px-6 py-3 text-left">Plaka</th>
+                                        <th class="px-6 py-3 text-left">Net Kg</th>
+                                        <th class="px-6 py-3 text-left">İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="zeytinListesi">
+                                    <tr>
+                                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">Zeytin işlemi bekleyen müşteri bulunamadı</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ödemeler Sayfası -->
+                <div id="odemelerPage" class="page">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold mb-6">Ödeme İşlemleri</h2>
+                        
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Müşteri Ara</label>
+                            <input type="text" id="odemeAra" placeholder="Plaka veya isim ile ara..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" onkeyup="searchOdemeMusteriler()">
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th class="px-6 py-3 text-left">Müşteri</th>
+                                        <th class="px-6 py-3 text-left">Plaka</th>
+                                        <th class="px-6 py-3 text-left">İşlem</th>
+                                        <th class="px-6 py-3 text-left">Net Kg</th>
+                                        <th class="px-6 py-3 text-left">Tutar</th>
+                                        <th class="px-6 py-3 text-left">Durum</th>
+                                        <th class="px-6 py-3 text-left">İşlem</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="odemeListesi">
+                                    <tr>
+                                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">Ödeme bekleyen işlem bulunamadı</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fiyatlar Sayfası -->
+                <div id="fiyatlarPage" class="page">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold mb-6">Fiyat Yönetimi</h2>
+                        
+                        <form id="fiyatForm" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Kavlatma (TL/kg)</label>
+                                    <input type="number" id="fiyatKavlatma" step="0.01" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Kavlatma Serim (TL/kg)</label>
+                                    <input type="number" id="fiyatKavlatmaSerim" step="0.01" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Kavlatma + Farfar (TL/kg)</label>
+                                    <input type="number" id="fiyatKavlatmaFarfar" step="0.01" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Taneleme (TL/kg)</label>
+                                    <input type="number" id="fiyatTaneleme" step="0.01" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Farfar (TL/kg)</label>
+                                    <input type="number" id="fiyatFarfar" step="0.01" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Zeytin (TL/kg)</label>
+                                    <input type="number" id="fiyatZeytin" step="0.01" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" required>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-save mr-2"></i>Fiyatları Kaydet
+                            </button>
+                        </form>
+                        
+                        <div class="mt-8">
+                            <h3 class="text-xl font-semibold mb-4">Mevcut Fiyatlar</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-gray-800">Kavlatma</h4>
+                                    <p class="text-2xl font-bold text-blue-600" id="currentKavlatma">0.00 TL</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-gray-800">Kavlatma Serim</h4>
+                                    <p class="text-2xl font-bold text-blue-600" id="currentKavlatmaSerim">0.00 TL</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-gray-800">Kavlatma + Farfar</h4>
+                                    <p class="text-2xl font-bold text-blue-600" id="currentKavlatmaFarfar">0.00 TL</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-gray-800">Taneleme</h4>
+                                    <p class="text-2xl font-bold text-blue-600" id="currentTaneleme">0.00 TL</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-gray-800">Farfar</h4>
+                                    <p class="text-2xl font-bold text-blue-600" id="currentFarfar">0.00 TL</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-gray-800">Zeytin</h4>
+                                    <p class="text-2xl font-bold text-blue-600" id="currentZeytin">0.00 TL</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Raporlar Sayfası -->
+                <div id="raporlarPage" class="page">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold mb-6">Raporlar</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <div class="bg-blue-50 p-6 rounded-lg">
+                                <h3 class="text-lg font-semibold mb-4">Günlük Rapor</h3>
+                                <p class="text-2xl font-bold text-blue-600" id="gunlukToplam">0.00 TL</p>
+                                <p class="text-gray-600">Bugünkü toplam ciros</p>
+                            </div>
+                            <div class="bg-green-50 p-6 rounded-lg">
+                                <h3 class="text-lg font-semibold mb-4">Aylık Rapor</h3>
+                                <p class="text-2xl font-bold text-green-600" id="aylikToplam">0.00 TL</p>
+                                <p class="text-gray-600">Bu ayki toplam ciros</p>
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto mb-6">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th class="px-6 py-3 text-left">Tarih</th>
+                                        <th class="px-6 py-3 text-left">Müşteri</th>
+                                        <th class="px-6 py-3 text-left">İşlem</th>
+                                        <th class="px-6 py-3 text-left">Net Kg</th>
+                                        <th class="px-6 py-3 text-left">Tutar</th>
+                                        <th class="px-6 py-3 text-left">Durum</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="raporListesi">
+                                    <tr>
+                                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">Rapor verisi bulunamadı</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                     <div class="bg-gray-50 p-4 rounded-lg">
+    <h3 class="text-lg font-semibold mb-4">Tüm Güncel Kayıtlar</h3>
+
+    <!-- Arama alanı: ad veya plaka ile arama -->
+    <div class="mb-4">
+        <input
+            type="text"
+            id="tumGuncelArama"
+            placeholder="Ad veya plaka ile ara..."
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            onkeyup="filterTumGuncelKayitlar()"
+        />
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="bg-white">
+                    <th class="px-6 py-3 text-left">Tarih</th>
+                    <th class="px-6 py-3 text-left">Müşteri</th>
+                    <th class="px-6 py-3 text-left">Plaka</th>
+                    <th class="px-6 py-3 text-left">İşlem Türü</th>
+                    <th class="px-6 py-3 text-left">1. Tartım (kg)</th>
+                    <th class="px-6 py-3 text-left">2. Tartım (kg)</th>
+                    <th class="px-6 py-3 text-left">Net (kg)</th>
+                    <th class="px-6 py-3 text-left">Açıklamalar</th>
+                    <th class="px-6 py-3 text-left">Durum</th>
+                </tr>
+            </thead>
+            <tbody id="tumGuncelKayitlar">
+                <tr>
+                    <td colspan="9" class="px-6 py-4 text-center text-gray-500">Kayıt bulunamadı</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+   <div id="silmePage" class="page">
+<div class="bg-white p-6 shadow-md w-[1600px] ml-[280px]">
+
+        <h2 class="text-2xl font-bold mb-6">Kayıt Silme Ekranı</h2>
+        <button onclick="resetSezon()" class="mb-4 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700  float-right">
+            <i class="fas fa-sync-alt mr-2"></i>Sezon Sıfırla (Tüm Kayıtları Sil)
+        </button>
+        <div class="mb-4">
+            <input
+                type="text"
+                id="silmeAramaInput"
+                placeholder="Ad Soyad ile ara..."
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                oninput="filtreleSilmeListesi()"
+            />
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-gray-50">
+                        <th class="px-6 py-3 text-left">Müşteri</th>
+                        <th class="px-6 py-3 text-left">Plaka</th>
+                        <th class="px-6 py-3 text-left">İşlem Türü</th>
+                        <th class="px-6 py-3 text-left">İşlem</th>
+                    </tr>
+                </thead>
+                <tbody id="silmeListesi">
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">Kayıt bulunamadı</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+    <!-- Modal -->
+    <div id="tartim2Modal" class="modal">
+        <div class="modal-content">
+            <h3 class="text-xl font-semibold mb-4">2. Tartım</h3>
+            <div id="modalMusteriInfo" class="mb-4 p-3 bg-gray-50 rounded-lg"></div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">2. Tartım (kg)</label>
+                <input type="number" id="modalTartim2" step="0.01" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="hideModal('tartim2Modal')" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg">İptal</button>
+                <button onclick="completeTartim2()" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg">Kaydet</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="kavlatmaModal" class="modal">
+        <div class="modal-content">
+            <h3 class="text-xl font-semibold mb-4">Kavlatma Detayları</h3>
+            <div id="modalKavlatmaInfo" class="mb-4 p-3 bg-gray-50 rounded-lg"></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Serim Alanı</label>
+                    <input type="text" id="modalSerimAlani" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Çuval Sayısı</label>
+                    <input type="number" id="modalCuvalSayisi" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Açıklama</label>
+                <input type="text" id="modalKavlatmaAciklama" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Satın Alma Yeri (Müşteriden mal alma)</label>
+                <input type="text" id="modalSatinAlmaYeri" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Ekstra Ücret (TL)</label>
+                <input type="number" id="modalEkstraUcret" step="0.01" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="hideModal('kavlatmaModal')" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg">İptal</button>
+                <button onclick="completeKavlatma()" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg">Kaydet</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="zeytinModal" class="modal">
+        <div class="modal-content">
+            <h3 class="text-xl font-semibold mb-4">Zeytin Teneke Hesapla</h3>
+            <div id="modalZeytinInfo" class="mb-4 p-3 bg-gray-50 rounded-lg"></div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Teneke Fiyatı (TL)</label>
+                <input type="number" id="modalTenekeFiyati" step="0.01" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Teneke Sayısı</label>
+                <input type="number" id="modalTenekeSayisi" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Açıklama</label>
+                <input type="text" id="modalZeytinAciklama" class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+            </div>
+            <div class="flex space-x-3">
+                <button onclick="hideModal('zeytinModal')" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg">İptal</button>
+                <button onclick="completeZeytin()" class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg">Hesapla ve Ekle</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+      window.showModal = function(modalId) {
+    const el = document.getElementById(modalId);
+    if (!el) {
+        console.warn('showModal: modal not found ->', modalId);
+        return;
+    }
+    el.style.display = 'block';
+    // optional: trap focus, add animation class, etc.
+};
+
+window.hideModal = function(modalId) {
+    const el = document.getElementById(modalId);
+    if (!el) {
+        console.warn('hideModal: modal not found ->', modalId);
+        return;
+    }
+    el.style.display = 'none';
+};
+        // Silme sayfasını yükle ve listeyi güncelle
+let silmeTumMusteriler = []; // Tüm kayıtlar burada tutulacak
+
+// Silme sayfasını yükle ve listeyi güncelle
+function loadSilmeListesi() {
+    silmeTumMusteriler = JSON.parse(localStorage.getItem('musteriler') || '[]');
+    filtreleSilmeListesi();
+}
+
+// Arama inputuna göre listeyi filtrele ve göster
+function filtreleSilmeListesi() {
+    const arama = document.getElementById('silmeAramaInput').value.toLowerCase();
+    const tbody = document.getElementById('silmeListesi');
+    tbody.innerHTML = '';
+
+    const filtreli = silmeTumMusteriler.filter(musteri =>
+        musteri.adSoyad.toLowerCase().includes(arama)
+    );
+
+    if (filtreli.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">Kayıt bulunamadı</td></tr>';
+        return;
+    }
+
+    filtreli.forEach(musteri => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="px-6 py-4">${musteri.adSoyad}</td>
+            <td class="px-6 py-4">${musteri.plaka}</td>
+            <td class="px-6 py-4">${musteri.islemTuru}</td>
+            <td class="px-6 py-4">
+                <button onclick="silMusteri(${musteri.id})" class="bg-red-600 text-white px-3 py-1 rounded-lg text-sm hover:bg-red-700">
+                    Sil
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// Tek bir müşteriyi sil
+function silMusteri(musteriId) {
+    if (!confirm('Bu kaydı silmek istediğinize emin misiniz?')) return;
+
+    let musteriler = JSON.parse(localStorage.getItem('musteriler') || '[]');
+    musteriler = musteriler.filter(m => m.id !== musteriId);
+    localStorage.setItem('musteriler', JSON.stringify(musteriler));
+
+    alert('Kayıt silindi.');
+    loadSilmeListesi();
+    loadDashboardData();
+}
+function setVh() {
+    let vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+
+// Sayfa yüklendiğinde ve pencere boyutu değiştiğinde çalıştır
+window.addEventListener('load', setVh);
+window.addEventListener('resize', setVh);
+
+
+// Tüm kayıtları sil (Sezon Sıfırla)
+function resetSezon() {
+    if (!confirm('Tüm kayıtlar silinecek! Emin misiniz?')) return;
+
+    localStorage.removeItem('musteriler');
+    localStorage.removeItem('islemler');
+    localStorage.removeItem('odemeler');
+
+    initDatabase();
+
+    alert('Tüm kayıtlar silindi ve sezon sıfırlandı.');
+    loadSilmeListesi();
+    loadDashboardData();
+}
+
+
+        // Veritabanı simülasyonu
+        function initDatabase() {
+            if (!localStorage.getItem('musteriler')) {
+                localStorage.setItem('musteriler', JSON.stringify([]));
+            }
+            if (!localStorage.getItem('fiyatlar')) {
+                localStorage.setItem('fiyatlar', JSON.stringify({
+                    'Kavlatma': 1000,
+                    'Kavlatma_Serim': 50,
+                    'Kavlatma_Farfar': 100,
+                    'Taneleme': 500,
+                    'Farfar': 750,
+                    'Zeytin': 600
+                }));
+            }
+            if (!localStorage.getItem('islemler')) {
+                localStorage.setItem('islemler', JSON.stringify([]));
+            }
+            if (!localStorage.getItem('odemeler')) {
+                localStorage.setItem('odemeler', JSON.stringify([]));
+            }
+        }
+
+        // Sayfa geçişleri & başlıklar
+       function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
+
+    const titles = {
+        dashboardPage: 'Dashboard',
+        kayitPage: 'Yeni Kayıt',
+        tartim2Page: '2. Tartım',
+        islemBitirPage: 'İşlem Bitir',
+        kavlatmaDevamPage: 'Kavlatma Devam',
+        zeytinDevamPage: 'Zeytin Devam',
+        odemelerPage: 'Ödemeler',
+        fiyatlarPage: 'Fiyat Yönetimi',
+        raporlarPage: 'Raporlar',
+        silmePage: 'Silme Ekranı'
+    };
+
+    document.getElementById('pageTitle').textContent = titles[pageId] || 'Dashboard';
+    document.getElementById(pageId).classList.add('active');
+
+    document.getElementById('appLayout').style.display = 'block';
+    document.getElementById('loginPage').style.display = 'none';
+
+    if (pageId === 'dashboardPage') loadDashboardData();
+    if (pageId === 'tartim2Page') searchCustomers();
+    if (pageId === 'islemBitirPage') searchIslemMusteriler();
+    if (pageId === 'kavlatmaDevamPage') searchKavlatmaMusteriler();
+    if (pageId === 'zeytinDevamPage') searchZeytinMusteriler();
+    if (pageId === 'odemelerPage') searchOdemeMusteriler();
+    if (pageId === 'fiyatlarPage') loadFiyatlar();
+    if (pageId === 'raporlarPage') loadRaporlar();
+    if (pageId === 'silmePage') loadSilmeListesi();
+}
+
+
+
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    showPage('dashboardPage');
+    loadDashboardData();
+});
+
+        // Çıkış işlemi
+       function logout() {
+    document.getElementById('appLayout').style.display = 'none';
+    document.getElementById('loginPage').style.display = 'block';
+    document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+    document.getElementById('loginPage').classList.add('active');
+}
+
+        // Dashboard verilerini yükle
+        function loadDashboardData() {
+            const musteriler = JSON.parse(localStorage.getItem('musteriler') || '[]');
+            const islemler = JSON.parse(localStorage.getItem('islemler') || '[]');
+            
+            document.getElementById('totalCustomers').textContent = musteriler.length;
+            
+            const pendingTartim = musteriler.filter(m => m.tartim1 && !m.tartim2).length;
+            document.getElementById('pendingTartim').textContent = pendingTartim;
+            
+            const completedJobs = islemler.length;
+            document.getElementById('completedJobs').textContent = completedJobs;
+            
+            const pendingPayment = islemler.filter(i => !i.odemeAlindi).length;
+            document.getElementById('pendingPayment').textContent = pendingPayment;
+            
+            // Son işlemleri göster
+            const recentTable = document.getElementById('recentTransactions');
+            recentTable.innerHTML = '';
+            
+            if (islemler.length === 0) {
+                recentTable.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">Henüz işlem bulunmamaktadır</td></tr>';
+            } else {
+                islemler.slice(-5).reverse().forEach(islem => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4">${islem.adSoyad}</td>
+                        <td class="px-6 py-4">${islem.islemTuru}</td>
+                        <td class="px-6 py-4">${islem.netKg} kg</td>
+                        <td class="px-6 py-4">${islem.toplamTutar} TL</td>
+                        <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs ${islem.odemeAlindi ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">${islem.odemeAlindi ? 'Ödendi' : 'Bekliyor'}</span></td>
+                    `;
+                    recentTable.appendChild(row);
+                });
+            }
+        }
+
+        // Yeni kayıt formu
+        document.getElementById('kayitForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const yeniMusteri = {
+                id: Date.now(),
+                adSoyad: document.getElementById('adSoyad').value,
+                plaka: document.getElementById('plaka').value,
+                geldigiYer: document.getElementById('geldigiYer').value,
+                islemTuru: document.getElementById('islemTuru').value,
+                tartim1: parseFloat(document.getElementById('tartim1').value),
+                tartim2: null,
+                netKg: null,
+                tarih: new Date().toISOString(),
+                durum: '1. Tartım Tamamlandı',
+                // Kavlatma ekstra bilgileri (varsa)
+                kavlatmaExtras: {
+                    serim: !!document.getElementById('extraSerim').checked,
+                    farfar: !!document.getElementById('extraFarfar').checked
+                }
+            };
+            
+            const musteriler = JSON.parse(localStorage.getItem('musteriler') || '[]');
+            musteriler.push(yeniMusteri);
+            localStorage.setItem('musteriler', JSON.stringify(musteriler));
+            
+            alert('Kayıt başarıyla oluşturuldu!');
+            this.reset();
+            document.getElementById('kavlatmaExtrasDiv').style.display = 'none';
+            showPage('dashboardPage');
+        });
+
+        function onIslemTuruChange() {
+            const val = document.getElementById('islemTuru').value;
+            const extrasDiv = document.getElementById('kavlatmaExtrasDiv');
+            if (val === 'Kavlatma') {
+                extrasDiv.style.display = 'block';
+            } else {
+                extrasDiv.style.display = 'none';
+                document.getElementById('extraSerim').checked = false;
+                document.getElementById('extraFarfar').checked = false;
+            }
+        }
+
+        // Müşteri arama (2. tartım)
+        function searchCustomers() {
+            const searchTerm = document.getElementById('musteriAra').value.toLowerCase();
+            const musteriler = JSON.parse(localStorage.getItem('musteriler') || '[]');
+            const filtered = musteriler.filter(m => 
+                m.tartim1 && !m.tartim2 && 
+                (m.adSoyad.toLowerCase().includes(searchTerm) || m.plaka.toLowerCase().includes(searchTerm))
+            );
+            
+            const tableBody = document.getElementById('tartimListesi');
+            tableBody.innerHTML = '';
+            
+            if (filtered.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="px-6 py-4 text-center text-gray-500">Sonuç bulunamadı</td></tr>';
+            } else {
+                filtered.forEach(musteri => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4">${musteri.adSoyad}</td>
+                        <td class="px-6 py-4">${musteri.plaka}</td>
+                        <td class="px-6 py-4">${musteri.islemTuru}</td>
+                        <td class="px-6 py-4">${musteri.tartim1} kg</td>
+                        <td class="px-6 py-4">
+                            <button onclick="showTartim2Modal(${musteri.id})" class="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm">
+                                2. Tartım Yap
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+
+        // 2. Tartım modalını göster
+        function showTartim2Modal(musteriId) {
+            const musteriler = JSON.parse(localStorage.getItem('musteriler') || '[]');
+            const musteri = musteriler.find(m => m.id === musteriId);
+            
+            if (musteri) {
+                document.getElementById('modalMusteriInfo').innerHTML = `
+                    <strong>${musteri.adSoyad}</strong> - ${musteri.plaka}<br>
+                    İşlem: ${musteri.islemTuru}<br>
+                    1. Tartım: ${musteri.tartim1} kg
+                `;
+                document.getElementById('modalTartim2').value = '';
+                window.currentMusteriId = musteriId;
+                showModal('tartim2Modal');
+            }
+        }
+
+        // 2. Tartımı tamamla
+        function completeTartim2() {
+            const tartim2 = parseFloat(document.getElementById('modalTartim2').value);
+            
+            if (!tartim2 || tartim2 <= 0) {
+                alert('Geçerli bir 2. tartım değeri giriniz!');
+                return;
+            }
+            
+            const musteriler = JSON.parse(localStorage.getItem('musteriler') || '[]');
+            const musteriIndex = musteriler.findIndex(m => m.id === window.currentMusteriId);
+            
+            if (musteriIndex !== -1) {
+                if (tartim2 >= musteriler[musteriIndex].tartim1) {
+                    alert('2. tartım 1. tartımdan büyük veya eşit olamaz!');
+                    return;
+                }
+                
+                musteriler[musteriIndex].tartim2 = tartim2;
+                musteriler[musteriIndex].netKg = musteriler[musteriIndex].tartim1 - tartim2;
+                musteriler[musteriIndex].durum = '2. Tartım Tamamlandı';
+                
+                localStorage.setItem('musteriler', JSON.stringify(musteriler));
+                
+                // İşlemler listesine ekle
+                const islemler = JSON.parse(localStorage.getItem('islemler') || '[]');
+                const fiyatlar = JSON.parse(localStorage.getItem('fiyatlar') || '{}');
+
+                // Temel birim fiyatı ve kavlatma ekstra hesaplama
+                let basePrice = parseFloat(fiyatlar[musteriler[musteriIndex].islemTuru] || 0);
+                // Eğer Kavlatma ise, kavlatmaExtras'ı kontrol et ve ek fiyatları ekle
+                if (musteriler[musteriIndex].islemTuru === 'Kavlatma') {
+                    const extras = musteriler[musteriIndex].kavlatmaExtras || {};
+                    if (extras.serim) basePrice += parseFloat(fiyatlar['Kavlatma_Serim'] || 0);
+                    if (extras.farfar) basePrice += parseFloat(fiyatlar['Kavlatma_Farfar'] || 0);
+                }
+
+                const islem = {
+                    id: Date.now(),
+                    musteriId: window.currentMusteriId,
+                    adSoyad: musteriler[musteriIndex].adSoyad,
+                    plaka: musteriler[musteriIndex].plaka,
+                    islemTuru: musteriler[musteriIndex].islemTuru,
+                    tartim1: musteriler[musteriIndex].tartim1,
+                    tartim2: tartim2,
+                    netKg: musteriler[musteriIndex].netKg,
+                    birimFiyat: basePrice,
+                    toplamTutar: (musteriler[musteriIndex].netKg * basePrice).toFixed(2),
+                    tarih: new Date().toISOString(),
+                    odemeAlindi: false,
+                    durum: 'İşlem Tamamlandı',
+                    // Kavlatma detayları saklanabilecek alanlar
+                    kavlatmaExtras: musteriler[musteriIndex].kavlatmaExtras || {},
+                    ekstraUcret: 0
+                };
+                
+                islemler.push(islem);
+                localStorage.setItem('islemler', JSON.stringify(islemler));
+                
+                hideModal('tartim2Modal');
+                searchCustomers();
+                alert('2. tartım başarıyla kaydedildi! İşlem tamamlandı.');
+            }
+        }
+
+        // İşlem müşterilerini ara
+        function searchIslemMusteriler() {
+            const searchTerm = document.getElementById('islemMusteriAra').value.toLowerCase();
+            const islemler = JSON.parse(localStorage.getItem('islemler') || '[]');
+            const filtered = islemler.filter(islem => 
+                !islem.odemeAlindi &&
+                (islem.adSoyad.toLowerCase().includes(searchTerm) || islem.plaka.toLowerCase().includes(searchTerm))
+            );
+            
+            const tableBody = document.getElementById('islemListesi');
+            tableBody.innerHTML = '';
+            
+            if (filtered.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Sonuç bulunamadı</td></tr>';
+            } else {
+                filtered.forEach(islem => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4">${islem.adSoyAd || islem.adSoyad}</td>
+                        <td class="px-6 py-4">${islem.plaka}</td>
+                        <td class="px-6 py-4">${islem.islemTuru}</td>
+                        <td class="px-6 py-4">${islem.netKg} kg</td>
+                        <td class="px-6 py-4">${islem.toplamTutar} TL</td>
+                        <td class="px-6 py-4">
+                            <button onclick="odemeyiTamamla(${islem.id})" class="bg-green-600 text-white px-3 py-1 rounded-lg text-sm">
+                                Ödeme Al
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+
+        // Ödemeyi tamamla
+        function odemeyiTamamla(islemId) {
+            const islemler = JSON.parse(localStorage.getItem('islemler') || '[]');
+            const islemIndex = islemler.findIndex(i => i.id === islemId);
+            
+            if (islemIndex !== -1) {
+                islemler[islemIndex].odemeAlindi = true;
+                islemler[islemIndex].odemeTarihi = new Date().toISOString();
+                
+                localStorage.setItem('islemler', JSON.stringify(islemler));
+                
+                // Ödemeler listesine ekle
+                const odemeler = JSON.parse(localStorage.getItem('odemeler') || '[]');
+                odemeler.push(islemler[islemIndex]);
+                localStorage.setItem('odemeler', JSON.stringify(odemeler));
+                
+                alert('Ödeme başarıyla tamamlandı!');
+                searchIslemMusteriler();
+            }
+        }
+
+        // Kavlatma müşterilerini ara
+        function searchKavlatmaMusteriler() {
+            const searchTerm = document.getElementById('kavlatmaAra').value.toLowerCase();
+            const islemler = JSON.parse(localStorage.getItem('islemler') || '[]');
+            const filtered = islemler.filter(islem => 
+                islem.islemTuru === 'Kavlatma' && !islem.kavlatmaTamamlandi &&
+                (islem.adSoyad.toLowerCase().includes(searchTerm) || islem.plaka.toLowerCase().includes(searchTerm))
+            );
+            
+            const tableBody = document.getElementById('kavlatmaListesi');
+            tableBody.innerHTML = '';
+            
+            if (filtered.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">Sonuç bulunamadı</td></tr>';
+            } else {
+                filtered.forEach(islem => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4">${islem.adSoyad}</td>
+                        <td class="px-6 py-4">${islem.plaka}</td>
+                        <td class="px-6 py-4">${islem.netKg} kg</td>
+                        <td class="px-6 py-4">
+                            <button onclick="showKavlatmaModal(${islem.id})" class="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm">
+                                Detay Ekle
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+
+        // Kavlatma modalını göster
+        function showKavlatmaModal(islemId) {
+            const islemler = JSON.parse(localStorage.getItem('islemler') || '[]');
+            const islem = islemler.find(i => i.id === islemId);
+            
+            if (islem) {
+                document.getElementById('modalKavlatmaInfo').innerHTML = `
+                    <strong>${islem.adSoyad}</strong> - ${islem.plaka}<br>
+                    İşlem: ${islem.islemTuru}<br>
+                    Net Kg: ${islem.netKg} kg<br>
+                    Tutar: ${islem.toplamTutar} TL
+                `;
+                
+                document.getElementById('modalSerimAlani').value = islem.serimAlani || '';
+                document.getElementById('modalCuvalSayisi').value = islem.cuvalSayisi || '';
+                document.getElementById('modalEkstraUcret').value = islem.ekstraUcret || 0;
+                document.getElementById('modalKavlatmaAciklama').value = islem.aciklama || '';
+                document.getElementById('modalSatinAlmaYeri').value = islem.satinAlmaYeri || '';
+                
+                window.currentIslemId = islemId;
+                showModal('kavlatmaModal');
+            }
+        }
+
+        // Kavlatmayı tamamla
+        function completeKavlatma() {
+            const serimAlani = document.getElementById('modalSerimAlani').value;
+            const cuvalSayisi = parseInt(document.getElementById('modalCuvalSayisi').value) || 0;
+            const ekstraUcret = parseFloat(document.getElementById('modalEkstraUcret').value) || 0;
+            const aciklama = document.getElementById('modalKavlatmaAciklama').value || '';
+            const satinAlmaYeri = document.getElementById('modalSatinAlmaYeri').value || '';
+            
+            if (!serimAlani) {
+                alert('Serim alanı bilgisi gereklidir!');
+                return;
+            }
+            
+            const islemler = JSON.parse(localStorage.getItem('islemler') || '[]');
+            const islemIndex = islemler.findIndex(i => i.id === window.currentIslemId);
+            
+            if (islemIndex !== -1) {
+                islemler[islemIndex].kavlatmaTamamlandi = true;
+                islemler[islemIndex].serimAlani = serimAlani;
+                islemler[islemIndex].cuvalSayisi = cuvalSayisi;
+                islemler[islemIndex].ekstraUcret = ekstraUcret;
+                islemler[islemIndex].aciklama = aciklama;
+                islemler[islemIndex].satinAlmaYeri = satinAlmaYeri;
+                // toplam tutara ekstra ücreti ekle
+                islemler[islemIndex].toplamTutar = (parseFloat(islemler[islemIndex].toplamTutar) + ekstraUcret).toFixed(2);
+                
+                localStorage.setItem('islemler', JSON.stringify(islemler));
+                
+                hideModal('kavlatmaModal');
+                searchKavlatmaMusteriler();
+                alert('Kavlatma detayları başarıyla kaydedildi!');
+            }
+        }
+
+        // Ödeme müşterilerini ara
+        function searchOdemeMusteriler() {
+            const searchTerm = document.getElementById('odemeAra').value.toLowerCase();
+            const islemler = JSON.parse(localStorage.getItem('islemler') || '[]');
+            const filtered = islemler.filter(islem => 
+                !islem.odemeAlindi &&
+                (islem.adSoyad.toLowerCase().includes(searchTerm) || islem.plaka.toLowerCase().includes(searchTerm))
+            );
+            
+            const tableBody = document.getElementById('odemeListesi');
+            tableBody.innerHTML = '';
+            
+            if (filtered.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">Sonuç bulunamadı</td></tr>';
+            } else {
+                filtered.forEach(islem => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4">${islem.adSoyad}</td>
+                        <td class="px-6 py-4">${islem.plaka}</td>
+                        <td class="px-6 py-4">${islem.islemTuru}</td>
+                        <td class="px-6 py-4">${islem.netKg} kg</td>
+                        <td class="px-6 py-4">${islem.toplamTutar} TL</td>
+                        <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800">Bekliyor</span></td>
+                        <td class="px-6 py-4">
+                            <button onclick="odemeyiTamamla(${islem.id})" class="bg-green-600 text-white px-3 py-1 rounded-lg text-sm">
+                                Ödeme Al
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+
+        // Zeytin işlemlerini ara
+        function searchZeytinMusteriler() {
+            const searchTerm = document.getElementById('zeytinAra').value.toLowerCase();
+            const islemler = JSON.parse(localStorage.getItem('islemler') || '[]');
+            const filtered = islemler.filter(islem => 
+                islem.islemTuru === 'Zeytin' && !islem.zeytinTamamlandi &&
+                (islem.adSoyad.toLowerCase().includes(searchTerm) || islem.plaka.toLowerCase().includes(searchTerm))
+            );
+            
+            const tableBody = document.getElementById('zeytinListesi');
+            tableBody.innerHTML = '';
+            
+            if (filtered.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center text-gray-500">Sonuç bulunamadı</td></tr>';
+            } else {
+                filtered.forEach(islem => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4">${islem.adSoyad}</td>
+                        <td class="px-6 py-4">${islem.plaka}</td>
+                        <td class="px-6 py-4">${islem.netKg} kg</td>
+                        <td class="px-6 py-4">
+                            <button onclick="showZeytinModal(${islem.id})" class="bg-blue-600 text-white px-3 py-1 rounded-lg text-sm">
+                                Teneke Hesapla
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+
+        function showZeytinModal(islemId) {
+            const islemler = JSON.parse(localStorage.getItem('islemler') || '[]');
+            const islem = islemler.find(i => i.id === islemId);
+            if (!islem) return;
+            document.getElementById('modalZeytinInfo').innerHTML = `<strong>${islem.adSoyad}</strong> - ${islem.plaka}<br>Net Kg: ${islem.netKg} kg<br>Tutar: ${islem.toplamTutar} TL`;
+            document.getElementById('modalTenekeFiyati').value = '';
+            document.getElementById('modalTenekeSayisi').value = '';
+            document.getElementById('modalZeytinAciklama').value = islem.zeytinAciklama || '';
+            window.currentZeytinIslemId = islemId;
+            showModal('zeytinModal');
+        }
+
+        // Zeytin hesapla ve isleme ekle (teneke fiyatı * teneke sayısı)
+        function completeZeytin() {
+            const fiyati = parseFloat(document.getElementById('modalTenekeFiyati').value);
+            const sayisi = parseInt(document.getElementById('modalTenekeSayisi').value);
+            const aciklama = document.getElementById('modalZeytinAciklama').value || '';
+            if (!fiyati || !sayisi) {
+                alert('Geçerli teneke fiyatı ve sayısı giriniz!');
+                return;
+            }
+            const ekstra = fiyati * sayisi;
+            const islemler = JSON.parse(localStorage.getItem('islemler') || '[]');
+            const idx = islemler.findIndex(i => i.id === window.currentZeytinIslemId);
+            if (idx === -1) return;
+            islemler[idx].zeytinTamamlandi = true;
+            islemler[idx].zeytinTenekeFiyati = fiyati;
+            islemler[idx].zeytinTenekeSayisi = sayisi;
+            islemler[idx].zeytinAciklama = aciklama;
+            islemler[idx].ekstraUcret = (parseFloat(islemler[idx].ekstraUcret || 0) + ekstra);
+            // toplam tutara ekle
+            islemler[idx].toplamTutar = (parseFloat(islemler[idx].toplamTutar) + ekstra).toFixed(2);
+            // Bu ekstra borca eklenecek olarak saklanır (islem.ekstraUcret içinde)
+            localStorage.setItem('islemler', JSON.stringify(islemler));
+            hideModal('zeytinModal');
+            searchZeytinMusteriler();
+            alert('Teneke ücreti hesaplandı ve müşterinin borcuna eklendi.');
+        }
+
+        // Fiyatları yükle
+        function loadFiyatlar() {
+            const fiyatlar = JSON.parse(localStorage.getItem('fiyatlar') || '{}');
+            
+            document.getElementById('fiyatKavlatma').value = fiyatlar.Kavlatma || 1000;
+            document.getElementById('fiyatKavlatmaSerim').value = fiyatlar.Kavlatma_Serim || 0;
+            document.getElementById('fiyatKavlatmaFarfar').value = fiyatlar.Kavlatma_Farfar || 0;
+            document.getElementById('fiyatTaneleme').value = fiyatlar.Taneleme || 500;
+            document.getElementById('fiyatFarfar').value = fiyatlar.Farfar || 750;
+            document.getElementById('fiyatZeytin').value = fiyatlar.Zeytin || 600;
+            
+            document.getElementById('currentKavlatma').textContent = (fiyatlar.Kavlatma || 1000) + ' TL';
+            document.getElementById('currentKavlatmaSerim').textContent = (fiyatlar.Kavlatma_Serim || 0) + ' TL';
+            document.getElementById('currentKavlatmaFarfar').textContent = (fiyatlar.Kavlatma_Farfar || 0) + ' TL';
+            document.getElementById('currentTaneleme').textContent = (fiyatlar.Taneleme || 500) + ' TL';
+            document.getElementById('currentFarfar').textContent = (fiyatlar.Farfar || 750) + ' TL';
+            document.getElementById('currentZeytin').textContent = (fiyatlar.Zeytin || 600) + ' TL';
+        }
+
+        // Fiyatları kaydet
+        document.getElementById('fiyatForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const yeniFiyatlar = {
+                'Kavlatma': parseFloat(document.getElementById('fiyatKavlatma').value),
+                'Kavlatma_Serim': parseFloat(document.getElementById('fiyatKavlatmaSerim').value),
+                'Kavlatma_Farfar': parseFloat(document.getElementById('fiyatKavlatmaFarfar').value),
+                'Taneleme': parseFloat(document.getElementById('fiyatTaneleme').value),
+                'Farfar': parseFloat(document.getElementById('fiyatFarfar').value),
+                'Zeytin': parseFloat(document.getElementById('fiyatZeytin').value)
+            };
+            
+            localStorage.setItem('fiyatlar', JSON.stringify(yeniFiyatlar));
+            
+            loadFiyatlar();
+            alert('Fiyatlar başarıyla güncellendi!');
+        });
+
+        // Raporları yükle
+        function loadRaporlar() {
+    const islemler = JSON.parse(localStorage.getItem('islemler') || '[]');
+    const musteriler = JSON.parse(localStorage.getItem('musteriler') || '[]');
+
+    // Günlük ve aylık toplamları hesapla
+    const bugun = new Date().toDateString();
+    const buAy = new Date().getMonth();
+
+    const gunlukToplam = islemler
+        .filter(islem => new Date(islem.tarih).toDateString() === bugun)
+        .reduce((toplam, islem) => toplam + parseFloat(islem.toplamTutar || 0), 0);
+
+    const aylikToplam = islemler
+        .filter(islem => new Date(islem.tarih).getMonth() === buAy)
+        .reduce((toplam, islem) => toplam + parseFloat(islem.toplamTutar || 0), 0);
+
+    document.getElementById('gunlukToplam').textContent = gunlukToplam.toFixed(2) + ' TL';
+    document.getElementById('aylikToplam').textContent = aylikToplam.toFixed(2) + ' TL';
+
+    // Rapor listesini göster
+    const raporListesi = document.getElementById('raporListesi');
+    raporListesi.innerHTML = '';
+    if (islemler.length === 0) {
+        raporListesi.innerHTML = '<tr><td colspan="6" class="px-6 py-4 text-center text-gray-500">Rapor verisi bulunamadı</td></tr>';
+    } else {
+        islemler.slice().reverse().forEach(islem => {
+            const tarih = new Date(islem.tarih).toLocaleDateString('tr-TR');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="px-6 py-4">${tarih}</td>
+                <td class="px-6 py-4">${islem.adSoyad}</td>
+                <td class="px-6 py-4">${islem.islemTuru}</td>
+                <td class="px-6 py-4">${islem.netKg} kg</td>
+                <td class="px-6 py-4">${islem.toplamTutar} TL</td>
+                <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs ${islem.odemeAlindi ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">${islem.odemeAlindi ? 'Ödendi' : 'Bekliyor'}</span></td>
+            `;
+            raporListesi.appendChild(row);
+        });
+    }
+
+    // Tüm Güncel Kayıtlar için musterileri daha detaylı göster
+    const allTbody = document.getElementById('tumGuncelKayitlar');
+    if (!allTbody) return; // güvenlik
+    allTbody.innerHTML = '';
+    if (musteriler.length === 0) {
+        allTbody.innerHTML = '<tr><td colspan="9" class="px-6 py-4 text-center text-gray-500">Kayıt bulunamadı</td></tr>';
+    } else {
+        // her müşteri için ilişkili işlemleri bul ve son işlemi al
+        musteriler.slice().reverse().forEach(m => {
+            const tarih = new Date(m.tarih).toLocaleDateString('tr-TR');
+            const ilgiliIslemler = islemler.filter(i => i.musteriId === m.id);
+            const sonIslem = ilgiliIslemler.length ? ilgiliIslemler[ilgiliIslemler.length - 1] : null;
+
+            const tartim1 = (m.tartim1 !== undefined && m.tartim1 !== null) ? m.tartim1 : (sonIslem ? sonIslem.tartim1 : '');
+            const tartim2 = (m.tartim2 !== undefined && m.tartim2 !== null) ? m.tartim2 : (sonIslem ? sonIslem.tartim2 : '');
+            const netKg = (m.netKg !== undefined && m.netKg !== null) ? m.netKg : (sonIslem ? sonIslem.netKg : '');
+
+            const aciklamaParcalari = [];
+            if (sonIslem) {
+                if (sonIslem.aciklama) aciklamaParcalari.push(sonIslem.aciklama);
+                if (sonIslem.satinAlmaYeri) aciklamaParcalari.push('Satın Alma Yeri: ' + sonIslem.satinAlmaYeri);
+                if (sonIslem.zeytinAciklama) aciklamaParcalari.push('Zeytin Açıklama: ' + sonIslem.zeytinAciklama);
+                if (sonIslem.kavlatmaExtras) {
+                    const ke = sonIslem.kavlatmaExtras;
+                    const extras = [];
+                    if (ke.serim) extras.push('Serim');
+                    if (ke.farfar) extras.push('Farfar');
+                    if (extras.length) aciklamaParcalari.push('Kavlatma Ek: ' + extras.join(', '));
+                }
+                if (sonIslem.ekstraUcret) aciklamaParcalari.push('Ek Ücret: ' + sonIslem.ekstraUcret + ' TL');
+            }
+            if (m.aciklama) aciklamaParcalari.push(m.aciklama);
+            if (m.geldigiYer) aciklamaParcalari.push('Geldiği Yer: ' + m.geldigiYer);
+
+            const aciklamalar = aciklamaParcalari.length ? aciklamaParcalari.join(' • ') : '-';
+            const durum = m.durum || (sonIslem ? sonIslem.durum : '-');
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="px-6 py-4">${tarih}</td>
+                <td class="px-6 py-4">${m.adSoyad}</td>
+                <td class="px-6 py-4">${m.plaka}</td>
+                <td class="px-6 py-4">${m.islemTuru || (sonIslem ? sonIslem.islemTuru : '-')}</td>
+                <td class="px-6 py-4">${tartim1 !== '' ? tartim1 + ' kg' : '-'}</td>
+                <td class="px-6 py-4">${tartim2 !== '' ? tartim2 + ' kg' : '-'}</td>
+                <td class="px-6 py-4">${netKg !== '' ? netKg + ' kg' : '-'}</td>
+                <td class="px-6 py-4">${aciklamalar}</td>
+                <td class="px-6 py-4">${durum}</td>
+            `;
+            allTbody.appendChild(tr);
+        });
+    }
+}
+// Filtreleme fonksiyonu: ad veya plaka'ya göre "Tüm Güncel Kayıtlar" tablosunu günceller.
+function filterTumGuncelKayitlar() {
+    const term = (document.getElementById('tumGuncelArama')?.value || '').trim().toLowerCase();
+    const islemler = JSON.parse(localStorage.getItem('islemler') || '[]');
+    const musteriler = JSON.parse(localStorage.getItem('musteriler') || '[]');
+
+    const allTbody = document.getElementById('tumGuncelKayitlar');
+    if (!allTbody) return;
+    allTbody.innerHTML = '';
+
+    // Eğer search boşsa tüm kayıtları göster, değilse filtrele
+    const list = musteriler.slice().reverse().filter(m => {
+        if (!term) return true;
+        const ad = (m.adSoyAd || m.adSoyad || '').toLowerCase();
+        const plaka = (m.plaka || '').toLowerCase();
+        return ad.includes(term) || plaka.includes(term);
+    });
+
+    if (list.length === 0) {
+        allTbody.innerHTML = '<tr><td colspan="9" class="px-6 py-4 text-center text-gray-500">Kayıt bulunamadı</td></tr>';
+        return;
+    }
+
+    list.forEach(m => {
+        const tarih = new Date(m.tarih).toLocaleDateString('tr-TR');
+
+        // Müşterinin ilgili işlemlerinden en son olanı al
+        const ilgiliIslemler = islemler.filter(i => i.musteriId === m.id);
+        const sonIslem = ilgiliIslemler.length ? ilgiliIslemler[ilgiliIslemler.length - 1] : null;
+
+        const tartim1 = (m.tartim1 !== undefined && m.tartim1 !== null) ? m.tartim1 : (sonIslem ? sonIslem.tartim1 : '');
+        const tartim2 = (m.tartim2 !== undefined && m.tartim2 !== null) ? m.tartim2 : (sonIslem ? sonIslem.tartim2 : '');
+        const netKg = (m.netKg !== undefined && m.netKg !== null) ? m.netKg : (sonIslem ? sonIslem.netKg : '');
+
+        const aciklamaParcalari = [];
+        if (sonIslem) {
+            if (sonIslem.aciklama) aciklamaParcalari.push(sonIslem.aciklama);
+            if (sonIslem.satinAlmaYeri) aciklamaParcalari.push('Satın Alma Yeri: ' + sonIslem.satinAlmaYeri);
+            if (sonIslem.zeytinAciklama) aciklamaParcalari.push('Zeytin: ' + sonIslem.zeytinAciklama);
+            if (sonIslem.kavlatmaExtras) {
+                const ke = sonIslem.kavlatmaExtras;
+                const extras = [];
+                if (ke.serim) extras.push('Serim');
+                if (ke.farfar) extras.push('Farfar');
+                if (extras.length) aciklamaParcalari.push('Kavlatma Ek: ' + extras.join(', '));
+            }
+            if (sonIslem.ekstraUcret) aciklamaParcalari.push('Ek Ücret: ' + sonIslem.ekstraUcret + ' TL');
+        }
+        if (m.aciklama) aciklamaParcalari.push(m.aciklama);
+        if (m.geldigiYer) aciklamaParcalari.push('Geldiği Yer: ' + m.geldigiYer);
+
+        const aciklamalar = aciklamaParcalari.length ? aciklamaParcalari.join(' • ') : '-';
+        const durum = m.durum || (sonIslem ? sonIslem.durum : '-');
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="px-6 py-4">${tarih}</td>
+            <td class="px-6 py-4">${m.adSoyad}</td>
+            <td class="px-6 py-4">${m.plaka}</td>
+            <td class="px-6 py-4">${m.islemTuru || (sonIslem ? sonIslem.islemTuru : '-')}</td>
+            <td class="px-6 py-4">${tartim1 !== '' ? tartim1 + ' kg' : '-'}</td>
+            <td class="px-6 py-4">${tartim2 !== '' ? tartim2 + ' kg' : '-'}</td>
+            <td class="px-6 py-4">${netKg !== '' ? netKg + ' kg' : '-'}</td>
+            <td class="px-6 py-4">${aciklamalar}</td>
+            <td class="px-6 py-4">${durum}</td>
+        `;
+        allTbody.appendChild(tr);
+    });
+}
+
+        // Uygulama başlangıcı
+        document.addEventListener('DOMContentLoaded', function() {
+            initDatabase();
+            showPage('loginPage');
+            
+            // Nav item aktifleştirme
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
